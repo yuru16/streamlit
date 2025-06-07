@@ -16,25 +16,25 @@ st.sidebar.write("""
 
 days=st.sidebar.slider('日数',1,5000,20)
 
+st.write(f"""
+### 過去 **{days}日間** のGAFA株価
+""")
+
+@st.cache_data
+def get_data(days, tickers):
+    df=pd.DataFrame()
+    for company in tickers.keys():
+        tkr = yf.Ticker(tickers[company])
+        hist=tkr.history(period=f'{days}d')
+        hist.index = hist.index.strftime('%d %B %Y')
+        hist=hist[['Close']]
+        hist.columns=[company]
+        hist=hist.T
+        hist.index.name='Name'
+        df=pd.concat([df, hist])
+    return df
+
 try:
-    st.write(f"""
-    ### 過去 **{days}日間** のGAFA株価
-    """)
-
-    @st.cache_data
-    def get_data(days, tickers):
-        df=pd.DataFrame()
-        for company in tickers.keys():
-            tkr = yf.Ticker(tickers[company])
-            hist=tkr.history(period=f'{days}d')
-            hist.index = hist.index.strftime('%d %B %Y')
-            hist=hist[['Close']]
-            hist.columns=[company]
-            hist=hist.T
-            hist.index.name='Name'
-            df=pd.concat([df, hist])
-        return df
-
     st.sidebar.write("""
     # 株価の範囲指定
     """)
